@@ -1,10 +1,10 @@
 # Kubernetes网络测试
 
-## 集群访问公网测试
+## 集群访问公网测试
 
 **测试说明**
 
-- 镜像中将以下核心代码进行封装成为`curls`命令，使用方式`curls url [times]`，例如`curls choerodon.io 20`则为访问`choerodon.io`20次并打印测试出的时间指标，命令默认访问10次。
+- 镜像中将以下核心代码进行封装成为`curls`命令，使用方式`curls url [times]`，例如`curls choerodon.io 20`则为访问`choerodon.io`20次并打印测试出的时间指标，命令默认访问10次。
 
     ```bash
     curl -o /dev/null -s -w '%{time_connect} %{time_starttransfer} %{time_total}' "choerodon.io"
@@ -22,7 +22,7 @@
 
     ```bash
     docker run -it --rm --net=host \
-        registry.saas.hand-china.com/tools/network-tools \
+        setzero/network-and-cluster-perfermance-test:0.1.0 \
         curls choerodon.io
     ```
 
@@ -51,7 +51,7 @@
     ```bash
     kubectl run curl-test \
         -it --quiet --rm --restart=Never \
-        --image='registry.saas.hand-china.com/tools/network-tools' \
+        --image='setzero/network-and-cluster-perfermance-test:0.1.0' \
         -- bash -c "sleep 3; curls choerodon.io"
     ```
 
@@ -79,7 +79,7 @@
 
 - 测试数据
 
-    Service Name: default-http-backend.kube-system.svc
+    Service Name: default-http-backend.kube-system.svc
 
     Service Cluster IP: 10.233.48.173
 
@@ -87,10 +87,10 @@
 
 - 通过向`default-http-backend`的`healthz`api执行curl命令进行网络延迟测试
 
-```Bash
-$ curl "http://10.233.48.173/healthz"
-ok
-```
+    ```Bash
+    $ curl "http://10.233.48.173/healthz"
+    ok
+    ```
 
 ### 场景一、 Kubernetes集群node节点上通过Service Cluster IP访问
 
@@ -98,7 +98,7 @@ ok
 
     ```bash
     docker run -it --rm --net=host \
-        registry.saas.hand-china.com/tools/network-tools \
+        setzero/network-and-cluster-perfermance-test:0.1.0 \
         curls http://10.233.48.173/healthz
     ```
 
@@ -127,7 +127,7 @@ ok
     ```bash
     kubectl run curl-test \
         -it --quiet --rm --restart=Never \
-        --image='registry.saas.hand-china.com/tools/network-tools' \
+        --image='setzero/network-and-cluster-perfermance-test:0.1.0' \
         -- bash -c "sleep 3; curls http://default-http-backend.kube-system.svc/healthz"
     ```
 
@@ -164,7 +164,7 @@ ok
 
     ```bash
     docker run -it --rm --net=host \
-        registry.saas.hand-china.com/tools/network-tools \
+        setzero/network-and-cluster-perfermance-test:0.1.0 \
         iperf -s -p 12345 -i 1 -M
     ```
 
@@ -172,7 +172,7 @@ ok
 
     ```bash
     docker run -it --rm --net=host \
-        registry.saas.hand-china.com/tools/network-tools \
+        setzero/network-and-cluster-perfermance-test:0.1.0 \
         iperf -c ${服务端主机IP} -p 12345 -i 1 -t 10 -w 20K
     ```
 
@@ -200,11 +200,11 @@ ok
     kubectl run iperf-server \
         -it --quiet --rm --restart=Never \
         --overrides='{"spec":{"template":{"spec":{"nodeName":"指定服务端运行的节点"}}}}' \
-        --image='registry.saas.hand-china.com/tools/network-tools' \
+        --image='setzero/network-and-cluster-perfermance-test:0.1.0' \
         -- bash -c "sleep 3; ifconfig eth0; iperf -s -p 12345 -i 1 -M"
     ```
 
-**注意：**查看输出的日志，替换下面客户端命令中POD的IP
+**注意：** 查看输出的日志，替换下面客户端命令中POD的IP
 
 - 客户端命令：
 
@@ -212,7 +212,7 @@ ok
     kubectl run iperf-client \
         -it --quiet --rm --restart=Never \
         --overrides='{"spec":{"template":{"spec":{"nodeName":"指定客户端运行的节点"}}}}' \
-        --image='registry.saas.hand-china.com/tools/network-tools' \
+        --image='setzero/network-and-cluster-perfermance-test:0.1.0' \
         -- iperf -c ${服务端POD的IP} -p 12345 -i 1 -t 10 -w 20K
     ```
 
@@ -239,7 +239,7 @@ ok
 
     ```bash
     docker run -it --rm --net=host \
-        registry.saas.hand-china.com/tools/network-tools \
+        setzero/network-and-cluster-perfermance-test:0.1.0 \
         iperf -s -p 12345 -i 1 -M
     ```
 
@@ -249,7 +249,7 @@ ok
     kubectl run iperf-client \
         -it --quiet --rm --restart=Never \
         --overrides='{"spec":{"template":{"spec":{"nodeName":"指定客户端运行的节点"}}}}' \
-        --image='registry.saas.hand-china.com/tools/network-tools' \
+        --image='setzero/network-and-cluster-perfermance-test:0.1.0' \
         -- iperf -c ${服务端主机IP} -p 12345 -i 1 -t 10 -w 20K
     ```
 
